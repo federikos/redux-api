@@ -1,33 +1,48 @@
 import React, { useEffect } from 'react'
+import {useHistory} from 'react-router-dom';
+import { ClipLoader } from 'react-spinners';
 import {useSelector, useDispatch} from 'react-redux';
-import { removeService, fetchServices } from '../actions/actionCreators';
+import { deleteService, fetchServices, editService } from '../actions/actionCreators';
 
-function ServiceList(props) {
+function ServiceList() {
   const {items, loading, error} = useSelector(state => state.serviceList);
   const dispatch = useDispatch();
+  const history = useHistory();
 
   useEffect(() => {
     dispatch(fetchServices())
-  }, [dispatch])
+  }, [dispatch]);
 
   const handleRemove = id => {
-    dispatch(removeService(id));
+    dispatch(deleteService(id));
+  }
+
+  const handleEdit = (item) => {
+    dispatch(editService(item.id));
+    history.push(`/services/${item.id}`);
   }
 
   if (loading) {
-    return <p>Loading...</p>;
+    return (
+      <div className="loader-wrapper">
+        <ClipLoader />
+      </div>
+    );
   }
 
   if (error) {
-    return <p>Something went wrong try again</p>;
+    return <p className="error">Произошла ошибка!</p>;
   }
 
   return (
     <ul>
       {items.map(o => (
-        <li key={o.id}>
-          {o.name} {o.price}
-          <button onClick={() => handleRemove(o.id)}>✕</button>
+        <li className="list-item" key={o.id}>
+          {`${o.name}: ${o.price} руб.`}
+          <div className="list-btns">
+            <button onClick={() => handleEdit(o)}>✎</button>
+            <button onClick={() => handleRemove(o.id)}>✕</button>
+          </div>
         </li>
       ))}
     </ul>

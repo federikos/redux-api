@@ -1,18 +1,22 @@
-import React, {Fragment} from 'react';
-import ServiceAdd from './components/ServiceAdd';
+import React from 'react';
+import './App.css';
+import {BrowserRouter as Router, Route, Redirect, useParams} from 'react-router-dom';
+import ServiceEdit from './components/ServiceEdit';
 import ServiceList from './components/ServiceList';
-import ServiceAddClassBased from './components/ServiceAddClassBased';
-import ServiceListClassBased from './components/ServiceListClassBased';
 
 function App() {
   return (
-    <Fragment>
-      <ServiceAdd />
-      <ServiceList />
-      <hr />
-      <ServiceAddClassBased />
-      <ServiceListClassBased />
-    </Fragment>
+    <div className="App">
+      <Router>
+        <Route exact path="/">
+          <Redirect to="/services" />
+        </Route>
+        <Route exact path="/services">
+          <ServiceList />
+        </Route>
+        <Route exact path="/services/:id" render={props => <ServiceEdit {...props} />} />
+      </Router>
+    </div>
   );
 }
 

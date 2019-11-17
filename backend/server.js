@@ -10,21 +10,47 @@ app.use(koaBody({json: true}));
 
 let nextId = 1;
 const services = [
-    { id: nextId++, name: 'Замена стекла', price: 21000, },
-    { id: nextId++, name: 'Замена дисплея', price: 25000, },
-    { id: nextId++, name: 'Замена аккумулятора', price: 4000, },
-    { id: nextId++, name: 'Замена микрофона', price: 2500, },
+    { id: nextId++, name: 'Замена стекла', price: 21000, content: 'Качественная замена от лучших заменителей, знаменитых занимательных заменщиков-менял'},
+    { id: nextId++, name: 'Замена дисплея', price: 25000, content: 'Качественная замена от лучших заменителей, знаменитых занимательных заменщиков-менял'},
+    { id: nextId++, name: 'Замена аккумулятора', price: 4000, content: 'Качественная замена от лучших заменителей, знаменитых занимательных заменщиков-менял'},
+    { id: nextId++, name: 'Замена микрофона', price: 2500, content: 'Качественная замена от лучших заменителей, знаменитых занимательных заменщиков-менял'},
 ];
 
 const router = new Router();
 
 router.get('/api/services', async (ctx, next) => {
-    ctx.response.body = services;
+    ctx.response.body = services.map(s => {
+        return {id: s.id, name: s.name, price: s.price}
+    });
+});
+
+router.get('/api/services/:id', async (ctx, next) => {
+    const id = Number(ctx.params.id);
+    const index = services.findIndex(o => o.id === id);
+    if (index === -1) {
+        ctx.response.status = 404;
+        return;
+    }
+    console.log(services[index])
+    ctx.response.body = services[index];
 });
 
 router.post('/api/services', async (ctx, next) => {
     const id = nextId++;
     services.push({...ctx.request.body, id});
+    ctx.response.status = 204;
+});
+
+router.post('/api/services/:id', async (ctx, next) => {
+    const id = Number(ctx.params.id);
+    //находим старый массив с полученным id
+    const index = services.findIndex(o => o.id === id);
+    if (index === -1) {
+        ctx.response.status = 404;
+        return;
+    }
+    //перезаписываем объект
+    services[index] = {...services[index], ...ctx.request.body}
     ctx.response.status = 204;
 });
 

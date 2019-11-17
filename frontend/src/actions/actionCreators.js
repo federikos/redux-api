@@ -3,9 +3,12 @@ import {
   FETCH_SERVICES_REQUEST,
   FETCH_SERVICES_FAILURE,
   FETCH_SERVICES_SUCCESS,
-  ADD_SERVICE_REQUEST,
-  ADD_SERVICE_FAILURE,
-  ADD_SERVICE_SUCCESS,
+  EDIT_SERVICE_REQUEST,
+  EDIT_SERVICE_FAILURE,
+  EDIT_SERVICE_SUCCESS,
+  SAVE_SERVICE_REQUEST,
+  SAVE_SERVICE_FAILURE,
+  SAVE_SERVICE_SUCCESS,
   REMOVE_SERVICE,
 } from './actionTypes';
 
@@ -27,23 +30,22 @@ export const fetchServicesSuccess = items => ({
   },
 });
 
-export const addServiceRequest = (name, price) => ({
-  type: ADD_SERVICE_REQUEST,
-  payload: {
-    name,
-    price,
-  },
-})
+export const editServiceRequest =() => ({
+  type: EDIT_SERVICE_REQUEST,
+});
 
-export const addServiceFailure = error => ({
-  type: ADD_SERVICE_FAILURE,
+export const editServiceFailure = error => ({
+  type: EDIT_SERVICE_FAILURE,
   payload: {
     error,
   },
 });
 
-export const addServiceSuccess = () => ({
-  type: ADD_SERVICE_SUCCESS,
+export const editServiceSuccess = item => ({
+  type: EDIT_SERVICE_SUCCESS,
+  payload: {
+    item,
+  },
 });
 
 export const changeServiceField = (name, value) => ({
@@ -59,6 +61,21 @@ export const removeService = id => ({
   payload: {
     id,
   },
+});
+
+export const saveServiceRequest =() => ({
+  type: SAVE_SERVICE_REQUEST,
+});
+
+export const saveServiceFailure = error => ({
+  type: SAVE_SERVICE_FAILURE,
+  payload: {
+    error,
+  },
+});
+
+export const saveServiceSuccess = () => ({
+  type: SAVE_SERVICE_SUCCESS,
 });
 
 export const fetchServices = () => async (dispatch) => {
@@ -79,23 +96,58 @@ export const fetchServices = () => async (dispatch) => {
   }
 };
 
-export const addService = () => async (dispatch, getState) => {
-  dispatch(addServiceRequest());
-  const {serviceAdd: {item: {name, price}}} = getState();
+export const editService = id => async (dispatch, getState) => {
+  dispatch(editServiceRequest());
 
+  console.log('olol')
   try {
-    const response = await fetch(`${process.env.REACT_APP_API_URL}`, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({name, price}),
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/${id}`);
+    if (!response.ok) {
+      throw new Error(response.statusText);
+    }
+    const item = await response.json();
+    dispatch(editServiceSuccess(item));
+  } catch (e) {
+    dispatch(editServiceFailure(e.message));
+  }
+
+  dispatch(fetchServices());
+};
+
+export const deleteService = id => async (dispatch, getState) => {
+  try {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/${id}`, {
+      method: 'DELETE'
     });
 
     if (!response.ok) {
       throw new Error(response.statusText);
     }
-    dispatch(addServiceSuccess());
+    dispatch(removeService(id));
   } catch (e) {
-    dispatch(addServiceFailure(e.message));
+    console.log('ошибка удаления');
+  }
+};
+
+export const saveService = (item, history) => async (dispatch, getState) => {
+  dispatch(saveServiceRequest());
+
+  console.log('olol')
+  try {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/${item.id}`, {
+      method: 'POST', // or 'PUT'
+      body: JSON.stringify({...item}),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    if (!response.ok) {
+      throw new Error(response.statusText);
+    }
+    history.push('/services');
+    dispatch(saveServiceSuccess());
+  } catch (e) {
+    dispatch(saveServiceFailure(e.message));
   }
 
   dispatch(fetchServices());
