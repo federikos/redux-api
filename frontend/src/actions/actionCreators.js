@@ -9,7 +9,8 @@ import {
   SAVE_SERVICE_REQUEST,
   SAVE_SERVICE_FAILURE,
   SAVE_SERVICE_SUCCESS,
-  REMOVE_SERVICE,
+  REMOVE_SERVICE_REQUEST,
+  REMOVE_SERVICE_FINISH,
 } from './actionTypes';
 
 export const fetchServicesRequest =() => ({
@@ -56,11 +57,13 @@ export const changeServiceField = (name, value) => ({
   },
 });
 
-export const removeService = id => ({
-  type: REMOVE_SERVICE,
-  payload: {
-    id,
-  },
+export const removeServiceRequest = id => ({
+  type: REMOVE_SERVICE_REQUEST,
+  payload: {id}
+})
+
+export const removeServiceFinish = () => ({
+  type: REMOVE_SERVICE_FINISH,
 });
 
 export const saveServiceRequest =() => ({
@@ -115,6 +118,8 @@ export const editService = id => async (dispatch, getState) => {
 };
 
 export const deleteService = id => async (dispatch, getState) => {
+  dispatch(removeServiceRequest(id));
+
   try {
     const response = await fetch(`${process.env.REACT_APP_API_URL}/${id}`, {
       method: 'DELETE'
@@ -123,9 +128,11 @@ export const deleteService = id => async (dispatch, getState) => {
     if (!response.ok) {
       throw new Error(response.statusText);
     }
-    dispatch(removeService(id));
+    dispatch(fetchServices());
   } catch (e) {
-    console.log('ошибка удаления');
+    dispatch(fetchServicesFailure(e || 'Ошибка удаления'));
+  } finally {
+    dispatch(removeServiceFinish())
   }
 };
 

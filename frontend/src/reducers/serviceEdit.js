@@ -6,21 +6,28 @@ import {
   SAVE_SERVICE_REQUEST,
   SAVE_SERVICE_FAILURE,
   SAVE_SERVICE_SUCCESS,
+
 } from '../actions/actionTypes'
 
 const initialState = {
   item: { name: '', price: '', content: ''},
   loading: false,
+  loadingSave: false,
   error: null,
 };
 
 export default function serviceEditReducer(state = initialState, action) {
   switch (action.type) {
     case EDIT_SERVICE_REQUEST:
-    case SAVE_SERVICE_REQUEST:
       return {
         ...state,
         loading: true,
+        error: null,
+      };
+    case SAVE_SERVICE_REQUEST:
+      return {
+        ...state,
+        loadingSave: true,
         error: null,
       };
     case EDIT_SERVICE_FAILURE:
@@ -28,13 +35,13 @@ export default function serviceEditReducer(state = initialState, action) {
       const {error} = action.payload;
       return {
         ...state,
-        loading: false,
+        loadingSave: false,
         error,
       };
     case EDIT_SERVICE_SUCCESS:
       return {...initialState, ...action.payload};
     case SAVE_SERVICE_SUCCESS:
-      return {...initialState};
+      return {...state, loadingSave: false};
     case CHANGE_SERVICE_FIELD:
       const { name, value } = action.payload;
       const { item } = state;

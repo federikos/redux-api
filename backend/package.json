@@ -18,5 +18,8 @@
     "koa-router": "^7.4.0",
     "koa2-cors": "^2.0.6",
     "nanoid": "^2.1.4"
+  },
+  "devDependencies": {
+    "braces": ">=2.3.1"
   }
 }

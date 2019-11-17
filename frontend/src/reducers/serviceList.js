@@ -2,13 +2,15 @@ import {
   FETCH_SERVICES_REQUEST,
   FETCH_SERVICES_FAILURE,
   FETCH_SERVICES_SUCCESS,
-  REMOVE_SERVICE,
+  REMOVE_SERVICE_REQUEST,
+  REMOVE_SERVICE_FINISH,
 } from '../actions/actionTypes'
 
 const initialState = {
   items: [],
   loading: false,
   error: null,
+  deletingItems: []
 };
 
 export default function serviceListReducer(state = initialState, action) {
@@ -34,11 +36,17 @@ export default function serviceListReducer(state = initialState, action) {
         loading: false,
         error: null,
       };
-    case REMOVE_SERVICE:
+    case REMOVE_SERVICE_REQUEST:
       const {id} = action.payload;
+
+        return {
+          ...state,
+          deletingItems: [...state.deletingItems, id],
+        };
+    case REMOVE_SERVICE_FINISH:
       return {
         ...state,
-        items: state.items.filter(o => o.id !== id)
+        deletingItems: [],
       };
     default:
       return state;

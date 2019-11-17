@@ -5,13 +5,17 @@ import {useSelector, useDispatch} from 'react-redux';
 import { deleteService, fetchServices, editService } from '../actions/actionCreators';
 
 function ServiceList() {
-  const {items, loading, error} = useSelector(state => state.serviceList);
+  const {items, loading, deletingItems, error} = useSelector(state => state.serviceList);
   const dispatch = useDispatch();
   const history = useHistory();
 
   useEffect(() => {
     dispatch(fetchServices())
   }, [dispatch]);
+
+  useEffect(() => {
+    console.log(deletingItems)
+  }, [deletingItems])
 
   const handleRemove = id => {
     dispatch(deleteService(id));
@@ -30,22 +34,29 @@ function ServiceList() {
     );
   }
 
-  if (error) {
-    return <p className="error">Произошла ошибка!</p>;
-  }
-
   return (
-    <ul>
-      {items.map(o => (
-        <li className="list-item" key={o.id}>
-          {`${o.name}: ${o.price} руб.`}
-          <div className="list-btns">
-            <button onClick={() => handleEdit(o)}>✎</button>
-            <button onClick={() => handleRemove(o.id)}>✕</button>
-          </div>
-        </li>
-      ))}
-    </ul>
+    <>
+      <ul>
+        {items.map(o => (
+          <li className="list-item" key={o.id}>
+            {`${o.name}: ${o.price} руб.`}
+
+            <div className="list-btns">
+              {
+                deletingItems.includes(o.id)
+                ? <button type="button"><ClipLoader size={10} /></button>
+                :
+                <>
+                  <button onClick={() => handleEdit(o)}>✎</button>
+                  <button onClick={() => handleRemove(o.id)}>✕</button>
+                </>
+              }
+            </div>
+          </li>
+        ))}
+      </ul>
+      {error && <p className="error">Произошла ошибка!</p>}
+    </>
   );
 }
 
