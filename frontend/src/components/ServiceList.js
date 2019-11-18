@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react';
 import {useHistory} from 'react-router-dom';
 import { ClipLoader } from 'react-spinners';
 import {useSelector, useDispatch} from 'react-redux';
@@ -13,18 +13,14 @@ function ServiceList() {
     dispatch(fetchServices())
   }, [dispatch]);
 
-  useEffect(() => {
-    console.log(deletingItems)
-  }, [deletingItems])
+  const handleRemoveRef = useRef(id => {
+    dispatch(deleteService(id))
+  });
 
-  const handleRemove = id => {
-    dispatch(deleteService(id));
-  }
-
-  const handleEdit = (item) => {
+  const handleEditRef = useRef(item => {
     dispatch(editService(item.id));
     history.push(`/services/${item.id}`);
-  }
+  });
 
   if (loading) {
     return (
@@ -47,8 +43,8 @@ function ServiceList() {
                 ? <button type="button"><ClipLoader size={10} /></button>
                 :
                 <>
-                  <button onClick={() => handleEdit(o)}>✎</button>
-                  <button onClick={() => handleRemove(o.id)}>✕</button>
+                  <button onClick={() => handleEditRef.current(o)}>✎</button>
+                  <button onClick={() => handleRemoveRef.current(o.id)}>✕</button>
                 </>
               }
             </div>
